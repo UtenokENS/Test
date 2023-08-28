@@ -47,6 +47,7 @@ type Keeper struct {
 	UnbondingDelegations        collections.Map[collections.Pair[[]byte, []byte], types.UnbondingDelegation]
 	RedelegationsByValDst       collections.Map[collections.Triple[[]byte, []byte, []byte], []byte]
 	RedelegationsByValSrc       collections.Map[collections.Triple[[]byte, []byte, []byte], []byte]
+	ValidatorsByPower           collections.Map[collections.Pair[[]byte, uint64], []byte]
 }
 
 // NewKeeper creates a new staking Keeper instance
@@ -154,6 +155,15 @@ func NewKeeper(
 				sdk.LengthPrefixedBytesKey, // sdk.LengthPrefixedBytesKey is needed to retain state compatibility
 			),
 			codec.CollValue[types.UnbondingDelegation](cdc)),
+		ValidatorsByPower: collections.NewMap(
+			sb, types.ValidatorsByPowerIndexKey,
+			"validators_by_power_index",
+			collections.PairKeyCodec(
+				collections.BytesKey,
+				collections.Uint64Key,
+			),
+			collections.BytesValue,
+		),
 	}
 
 	schema, err := sb.Build()

@@ -6,6 +6,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/golang/mock/gomock"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -211,7 +212,12 @@ func (s *KeeperTestSuite) TestUpdateValidatorByPowerIndex() {
 	require.NoError(err)
 	require.Equal(valTokens, validator.Tokens)
 
-	power := stakingtypes.GetValidatorsByPowerIndexKey(validator, keeper.PowerReduction(ctx), keeper.ValidatorAddressCodec())
+	// power := stakingtypes.GetValidatorsByPowerIndexKey(validator, keeper.PowerReduction(ctx), keeper.ValidatorAddressCodec())
+	str, err := s.accountKeeper.AddressCodec().StringToBytes(validator.GetOperator())
+	require.NoError(err)
+	pow := s.stakingKeeper.PowerReduction(ctx)
+	powerUint := pow.Uint64()
+	power, err := s.stakingKeeper.ValidatorsByPower.Get(ctx, collections.Join(str, powerUint))
 	require.True(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
 
 	// burn half the delegator shares
@@ -224,7 +230,12 @@ func (s *KeeperTestSuite) TestUpdateValidatorByPowerIndex() {
 	validator, err = keeper.GetValidator(ctx, valAddr)
 	require.NoError(err)
 
-	power = stakingtypes.GetValidatorsByPowerIndexKey(validator, keeper.PowerReduction(ctx), keeper.ValidatorAddressCodec())
+	str, err = s.accountKeeper.AddressCodec().StringToBytes(validator.GetOperator())
+	require.NoError(err)
+	pow = s.stakingKeeper.PowerReduction(ctx)
+	powerUint = pow.Uint64()
+	power, err = s.stakingKeeper.ValidatorsByPower.Get(ctx, collections.Join(str, powerUint))
+	// power = stakingtypes.GetValidatorsByPowerIndexKey(validator, keeper.PowerReduction(ctx), keeper.ValidatorAddressCodec())
 	require.True(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
 
 	// set new validator by power index
