@@ -2,11 +2,14 @@ package v2_test
 
 import (
 	"bytes"
+	"encoding/binary"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 
+	addresscodec "cosmossdk.io/core/address"
+	"cosmossdk.io/math"
 	storetypes "cosmossdk.io/store/types"
 
 	"github.com/cosmos/cosmos-sdk/codec/address"
@@ -66,7 +69,7 @@ func TestStoreMigration(t *testing.T) {
 		{
 			"ValidatorsByPowerIndexKey",
 			v1.GetValidatorsByPowerIndexKey(val),
-			types.GetValidatorsByPowerIndexKey(val, sdk.DefaultPowerReduction, address.NewBech32Codec("cosmosvaloper")),
+			getValidatorsByPowerIndexKey(val, sdk.DefaultPowerReduction, address.NewBech32Codec("cosmosvaloper")),
 		},
 		{
 			"DelegationKey",
@@ -147,4 +150,37 @@ func getValidatorKey(operatorAddr sdk.ValAddress) []byte {
 
 func unbondingKey(delAddr sdk.AccAddress, valAddr sdk.ValAddress) []byte {
 	return append(append(types.UnbondingDelegationKey, sdkaddress.MustLengthPrefix(delAddr)...), sdkaddress.MustLengthPrefix(valAddr)...)
+}
+
+func getValidatorsByPowerIndexKey(validator types.Validator, powerReduction math.Int, valAc addresscodec.Codec) []byte {
+	// NOTE the address doesn't need to be stored because counter bytes must always be different
+	// NOTE the larger values are of higher value
+
+	consensusPower := sdk.TokensToConsensusPower(validator.Tokens, powerReduction)
+	consensusPowerBytes := make([]byte, 8)
+	binary.BigEndian.PutUint64(consensusPowerBytes, uint64(consensusPower))
+
+	powerBytes := consensusPowerBytes
+	powerBytesLen := len(powerBytes) // 8
+
+	addr, err := valAc.StringToBytes(validator.OperatorAddress)
+	if err != nil {
+		panic(err)
+	}
+	operAddrInvr := sdk.CopyBytes(addr)
+	addrLen := len(operAddrInvr)
+
+	for i, b := range operAddrInvr {
+		operAddrInvr[i] = ^b
+	}
+
+	// key is of format prefix || powerbytes || addrLen (1byte) || addrBytes
+	key := make([]byte, 1+powerBytesLen+1+addrLen)
+
+	key[0] = types.ValidatorsByPowerIndexKey[0]
+	copy(key[1:powerBytesLen+1], powerBytes)
+	key[powerBytesLen+1] = byte(addrLen)
+	copy(key[powerBytesLen+2:], operAddrInvr)
+
+	return key
 }

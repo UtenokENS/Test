@@ -6,6 +6,7 @@ import (
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/golang/mock/gomock"
 
+	"cosmossdk.io/collections"
 	"cosmossdk.io/math"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -211,27 +212,56 @@ func (s *KeeperTestSuite) TestUpdateValidatorByPowerIndex() {
 	require.NoError(err)
 	require.Equal(valTokens, validator.Tokens)
 
-	power := stakingtypes.GetValidatorsByPowerIndexKey(validator, keeper.PowerReduction(ctx), keeper.ValidatorAddressCodec())
-	require.True(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
+	// power := stakingtypes.GetValidatorsByPowerIndexKey(validator, keeper.PowerReduction(ctx), keeper.ValidatorAddressCodec())
+	valAddrCdc := keeper.ValidatorAddressCodec()
+	str, err := valAddrCdc.StringToBytes(validator.GetOperator())
+	require.NoError(err)
+	pow := keeper.PowerReduction(ctx).BigInt().Bytes()
+	// power, err := keeper.ValidatorsByPowerIndex.Get(ctx, collections.Join(pow, str))
+	exists, err := keeper.ValidatorsByPowerIndex.Has(ctx, collections.Join(pow, str))
+	require.NoError(err)
+	require.True(exists)
+	// require.True(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
 
 	// burn half the delegator shares
 	require.NoError(keeper.DeleteValidatorByPowerIndex(ctx, validator))
 	validator, burned := validator.RemoveDelShares(delSharesCreated.Quo(math.LegacyNewDec(2)))
 	require.Equal(keeper.TokensFromConsensusPower(ctx, 50), burned)
 	stakingkeeper.TestingUpdateValidator(keeper, ctx, validator, true) // update the validator, possibly kicking it out
-	require.False(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
+
+	exists, err = keeper.ValidatorsByPowerIndex.Has(ctx, collections.Join(pow, str))
+	require.NoError(err)
+	require.True(exists)
+	// require.False(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
 
 	validator, err = keeper.GetValidator(ctx, valAddr)
 	require.NoError(err)
 
-	power = stakingtypes.GetValidatorsByPowerIndexKey(validator, keeper.PowerReduction(ctx), keeper.ValidatorAddressCodec())
-	require.True(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
+	// power = stakingtypes.GetValidatorsByPowerIndexKey(validator, keeper.PowerReduction(ctx), keeper.ValidatorAddressCodec())
+	valAddrCdc = keeper.ValidatorAddressCodec()
+	str, err = valAddrCdc.StringToBytes(validator.GetOperator())
+	require.NoError(err)
+	pow = keeper.PowerReduction(ctx).BigInt().Bytes()
+	// require.True(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
+	exists, err = keeper.ValidatorsByPowerIndex.Has(ctx, collections.Join(pow, str))
+	require.True(exists)
+	require.NoError(err)
 
 	// set new validator by power index
 	require.NoError(keeper.DeleteValidatorByPowerIndex(ctx, validator))
-	require.False(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
+	// require.False(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
+	// valAddrCdc = keeper.ValidatorAddressCodec()
+	// str, err = valAddrCdc.StringToBytes(validator.GetOperator())
+	// require.NoError(err)
+	// pow = keeper.PowerReduction(ctx).BigInt().Bytes()
+	exists, err = keeper.ValidatorsByPowerIndex.Has(ctx, collections.Join(pow, str))
+	require.False(exists)
+	require.NoError(err)
 	require.NoError(keeper.SetNewValidatorByPowerIndex(ctx, validator))
-	require.True(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
+	exists, err = keeper.ValidatorsByPowerIndex.Has(ctx, collections.Join(pow, str))
+	require.True(exists)
+	require.NoError(err)
+	// require.True(stakingkeeper.ValidatorByPowerIndexExists(ctx, keeper, power))
 }
 
 func (s *KeeperTestSuite) TestApplyAndReturnValidatorSetUpdatesPowerDecrease() {

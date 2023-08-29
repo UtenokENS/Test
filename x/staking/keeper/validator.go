@@ -95,12 +95,14 @@ func (k Keeper) SetValidatorByPowerIndex(ctx context.Context, validator types.Va
 		return nil
 	}
 
-	store := k.storeService.OpenKVStore(ctx)
+	// store := k.storeService.OpenKVStore(ctx)
 	str, err := k.validatorAddressCodec.StringToBytes(validator.GetOperator())
 	if err != nil {
 		return err
 	}
-	return store.Set(types.GetValidatorsByPowerIndexKey(validator, k.PowerReduction(ctx), k.validatorAddressCodec), str)
+	power := k.PowerReduction(ctx).BigInt().Bytes()
+	return k.ValidatorsByPowerIndex.Set(ctx, collections.Join(power, str), str)
+	// return store.Set(types.GetValidatorsByPowerIndexKey(validator, k.PowerReduction(ctx), k.validatorAddressCodec), str)
 }
 
 // DeleteValidatorByPowerIndex deletes a record by power index

@@ -37,7 +37,7 @@ var (
 
 	ValidatorsKey             = collections.NewPrefix(33) // prefix for each key to a validator
 	ValidatorsByConsAddrKey   = collections.NewPrefix(34) // prefix for each key to a validator index, by pubkey
-	ValidatorsByPowerIndexKey = []byte{0x23}              // prefix for each key to a validator index, sorted by power
+	ValidatorsByPowerIndexKey = collections.NewPrefix(35) // prefix for each key to a validator index, sorted by power
 
 	DelegationKey                    = collections.NewPrefix(49) // key for a delegation
 	UnbondingDelegationKey           = collections.NewPrefix(50) // key for an unbonding-delegation

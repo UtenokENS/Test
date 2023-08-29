@@ -18,6 +18,7 @@ func ValidatorByPowerIndexExists(ctx context.Context, keeper *Keeper, power []by
 		panic(err)
 	}
 	return has
+	// keeper.ValidatorsByPowerIndex.Has(ctx, power)
 }
 
 // TestingUpdateValidator updates a validator for testing
