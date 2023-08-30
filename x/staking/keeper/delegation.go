@@ -860,7 +860,10 @@ func (k Keeper) Unbond(
 		if err != nil {
 			return amount, err
 		}
-		validator = k.mustGetValidator(ctx, valbz)
+		validator, err = k.GetValidator(ctx, valbz)
+		if err != nil {
+			return amount, err
+		}
 	}
 
 	if delegation.Shares.IsZero() {

@@ -156,7 +156,10 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) (updates 
 		// everything that is iterated in this loop is becoming or already a
 		// part of the bonded validator set
 		valAddr := sdk.ValAddress(iterator.Value())
-		validator := k.mustGetValidator(ctx, valAddr)
+		validator, err := k.GetValidator(ctx, valAddr)
+		if err != nil {
+			return nil, err
+		}
 
 		if validator.Jailed {
 			panic("should never retrieve a jailed validator from the power store")
@@ -218,7 +221,10 @@ func (k Keeper) ApplyAndReturnValidatorSetUpdates(ctx context.Context) (updates 
 	}
 
 	for _, valAddrBytes := range noLongerBonded {
-		validator := k.mustGetValidator(ctx, sdk.ValAddress(valAddrBytes))
+		validator, err := k.GetValidator(ctx, sdk.ValAddress(valAddrBytes))
+		if err != nil {
+			return nil, err
+		}
 		validator, err = k.bondedToUnbonding(ctx, validator)
 		if err != nil {
 			return nil, err

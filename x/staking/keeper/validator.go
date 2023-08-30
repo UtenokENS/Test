@@ -32,15 +32,6 @@ func (k Keeper) GetValidator(ctx context.Context, addr sdk.ValAddress) (validato
 	return validator, nil
 }
 
-func (k Keeper) mustGetValidator(ctx context.Context, addr sdk.ValAddress) types.Validator {
-	validator, err := k.GetValidator(ctx, addr)
-	if err != nil {
-		panic(fmt.Sprintf("validator record not found for address: %X\n", addr))
-	}
-
-	return validator
-}
-
 // GetValidatorByConsAddr gets a single validator by consensus address
 func (k Keeper) GetValidatorByConsAddr(ctx context.Context, consAddr sdk.ConsAddress) (validator types.Validator, err error) {
 	opAddr, err := k.ValidatorByConsensusAddress.Get(ctx, consAddr)
@@ -53,15 +44,6 @@ func (k Keeper) GetValidatorByConsAddr(ctx context.Context, consAddr sdk.ConsAdd
 	}
 
 	return k.GetValidator(ctx, opAddr)
-}
-
-func (k Keeper) mustGetValidatorByConsAddr(ctx context.Context, consAddr sdk.ConsAddress) types.Validator {
-	validator, err := k.GetValidatorByConsAddr(ctx, consAddr)
-	if err != nil {
-		panic(fmt.Errorf("validator with consensus-Address %s not found", consAddr))
-	}
-
-	return validator
 }
 
 // SetValidator sets the main record holding validator details
@@ -315,7 +297,10 @@ func (k Keeper) GetBondedValidatorsByPower(ctx context.Context) ([]types.Validat
 	i := 0
 	for ; iterator.Valid() && i < int(maxValidators); iterator.Next() {
 		address := iterator.Value()
-		validator := k.mustGetValidator(ctx, address)
+		validator, err := k.GetValidator(ctx, address)
+		if err != nil {
+			return nil, err
+		}
 
 		if validator.IsBonded() {
 			validators[i] = validator
