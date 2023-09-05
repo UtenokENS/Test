@@ -1,4 +1,4 @@
-package types
+package commitment
 
 // KVPair is a key-value pair. It is used to represent a change in a Batch.
 // NOTE: The Value can be nil, which means the key is deleted.

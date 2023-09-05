@@ -1,17 +1,17 @@
-package commitment
+package commitment_test
 
 import (
 	"testing"
 
+	"cosmossdk.io/store/v2/commitment"
 	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
 	"cosmossdk.io/log"
 	"cosmossdk.io/store/v2/commitment/iavl"
-	"cosmossdk.io/store/v2/commitment/types"
 )
 
-func generateTree(treeType string) types.Tree {
+func generateTree(treeType string) commitment.Database {
 	if treeType == "iavl" {
 		cfg := iavl.DefaultConfig()
 		db := dbm.NewMemDB()
@@ -32,7 +32,7 @@ func TestIavlTree(t *testing.T) {
 	require.Equal(t, uint64(0), intialVersion)
 
 	// write a batch of version 1
-	batch1 := types.NewBatch()
+	batch1 := commitment.NewBatch()
 	batch1.Add([]byte("key1"), []byte("value1"))
 	batch1.Add([]byte("key2"), []byte("value2"))
 	batch1.Add([]byte("key3"), []byte("value3"))
@@ -52,7 +52,7 @@ func TestIavlTree(t *testing.T) {
 	version1Hash := tree.WorkingHash()
 
 	// write a batch of version 2
-	batch2 := types.NewBatch()
+	batch2 := commitment.NewBatch()
 	batch2.Add([]byte("key4"), []byte("value4"))
 	batch2.Add([]byte("key5"), []byte("value5"))
 	batch2.Add([]byte("key6"), []byte("value6"))
