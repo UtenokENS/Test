@@ -14,9 +14,6 @@ type Database interface {
 	LoadVersion(targetVersion uint64) error
 	Commit() ([]byte, error)
 	GetProof(version uint64, key []byte) (*ics23.CommitmentProof, error)
-	Set(key, value []byte) (bool, error)
-	Get(key []byte) ([]byte, error)
-	Remove(key []byte) ([]byte, bool, error)
 
 	io.Closer
 }

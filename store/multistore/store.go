@@ -100,6 +100,7 @@ func (s *Store) Commit() ([]byte, error) {
 		}
 		hashes.Write(h)
 	}
-	allHash := sha256.Sum256(hashes.Bytes())
-	return allHash[:], nil
+	scHash := sha256.Sum256(hashes.Bytes())
+
+	return scHash[:], nil
 }

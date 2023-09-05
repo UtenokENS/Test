@@ -3,6 +3,7 @@ package iavl
 import (
 	"fmt"
 
+	"cosmossdk.io/core/store"
 	"cosmossdk.io/log"
 	"cosmossdk.io/store/v2/commitment"
 	dbm "github.com/cosmos/cosmos-db"
@@ -10,23 +11,34 @@ import (
 	ics23 "github.com/cosmos/ics23/go"
 )
 
-var _ commitment.Database = (*Tree)(nil)
+var (
+	_ commitment.Database = (*Tree)(nil)
+	_ store.KVStore       = (*Tree)(nil)
+)
 
 // Tree is a wrapper around iavl.MutableTree.
 type Tree struct {
 	*iavl.MutableTree
 }
 
-func (t *Tree) Set(key, value []byte) (bool, error) {
-	return t.MutableTree.Set(key, value)
+func (t *Tree) Delete(key []byte) error {
+	_, _, err := t.MutableTree.Remove(key)
+	return err
 }
 
-func (t *Tree) Get(key []byte) ([]byte, error) {
-	return t.MutableTree.Get(key)
+func (t *Tree) Iterator(start, end []byte) (store.Iterator, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (t *Tree) Remove(key []byte) ([]byte, bool, error) {
-	return t.MutableTree.Remove(key)
+func (t *Tree) ReverseIterator(start, end []byte) (store.Iterator, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (t *Tree) Set(key, value []byte) error {
+	_, err := t.MutableTree.Set(key, value)
+	return err
 }
 
 // NewIavlTree creates a new Tree instance.
@@ -49,7 +61,7 @@ func (t *Tree) WriteBatch(batch *commitment.Batch) error {
 				return fmt.Errorf("failed to delete key %X", kv.Key)
 			}
 		} else {
-			_, err := t.Set(kv.Key, kv.Value)
+			err := t.Set(kv.Key, kv.Value)
 			if err != nil {
 				return err
 			}
