@@ -14,10 +14,10 @@ option go_package = "github.com/cosmos/cosmos-sdk/x/pool/types";
 
 // Query defines the gRPC querier service for community pool module.
 service Query {
-    // CommunityPool queries the community pool coins.
-    rpc CommunityPool(QueryCommunityPoolRequest) returns (QueryCommunityPoolResponse) {
-        option (google.api.http).get = "/cosmos/pool/v1/community_pool";
-    }
+  // CommunityPool queries the community pool coins.
+  rpc CommunityPool(QueryCommunityPoolRequest) returns (QueryCommunityPoolResponse) {
+    option (google.api.http).get = "/cosmos/pool/v1/community_pool";
+  }
 }
 
 // QueryCommunityPoolRequest is the request type for the Query/CommunityPool RPC
