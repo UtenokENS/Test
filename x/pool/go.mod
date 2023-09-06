@@ -1,4 +1,4 @@
-module github.com/cosmos/cosmos-sdk/x/pool
+module cosmossdk.io/x/pool
 
 go 1.21
 

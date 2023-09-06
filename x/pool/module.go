@@ -12,15 +12,15 @@ import (
 	storetypes "cosmossdk.io/core/store"
 	"cosmossdk.io/depinject"
 
-	"github.com/cosmos/cosmos-sdk/baseapp"
+	"cosmossdk.io/x/pool/keeper"
+	"cosmossdk.io/x/pool/types"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/runtime"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
-	"github.com/cosmos/cosmos-sdk/x/pool/keeper"
-	"github.com/cosmos/cosmos-sdk/x/pool/types"
 )
 
 // ConsensusVersion defines the current x/consensus module consensus version.
@@ -77,7 +77,7 @@ func (am AppModule) IsAppModule() {}
 // RegisterServices registers module services.
 func (am AppModule) RegisterServices(registrar grpc.ServiceRegistrar) error {
 	types.RegisterMsgServer(registrar, am.keeper)
-	types.RegisterQueryServer(registrar, am.keeper)
+	// types.RegisterQueryServer(registrar, am.keeper)
 	return nil
 }
 
@@ -126,15 +126,15 @@ func ProvideModule(in ModuleInputs) ModuleOutputs {
 		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
 	}
 
-	k := keeper.NewKeeper(in.Cdc, in.StoreService, authority.String(), in.EventManager)
+	k := keeper.NewKeeper(in.Cdc, in.StoreService, authority.String())
 	m := NewAppModule(in.Cdc, k)
-	baseappOpt := func(app *baseapp.BaseApp) {
-		app.SetParamStore(k.ParamsStore)
-	}
+	// baseappOpt := func(app *baseapp.BaseApp) {
+	// 	app.SetParamStore(k.ParamsStore)
+	// }
 
 	return ModuleOutputs{
-		Keeper:        k,
-		Module:        m,
-		BaseAppOption: baseappOpt,
+		Keeper: k,
+		Module: m,
+		// BaseAppOption: baseappOpt,
 	}
 }
