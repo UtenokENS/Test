@@ -57,6 +57,16 @@ type KeyCodec[T any] interface {
 	SizeNonTerminal(key T) int
 }
 
+type NameableKeyCodec[T any] interface {
+	KeyCodec[T]
+	WithName(string) NamedKeyCodec[T]
+}
+
+type NamedKeyCodec[T any] struct {
+	KeyCodec[T]
+	Name string
+}
+
 // ValueCodec defines a generic interface which is implemented
 // by types that are capable of encoding and decoding collection values.
 type ValueCodec[T any] interface {
@@ -72,6 +82,16 @@ type ValueCodec[T any] interface {
 	Stringify(value T) string
 	// ValueType returns the identifier for the type.
 	ValueType() string
+}
+
+type NameableValueCodec[T any] interface {
+	ValueCodec[T]
+	WithName(string) NamedValueCodec[T]
+}
+
+type NamedValueCodec[T any] struct {
+	ValueCodec[T]
+	Name string
 }
 
 // NewUntypedValueCodec returns an UntypedValueCodec for the provided ValueCodec.

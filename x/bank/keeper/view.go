@@ -73,15 +73,20 @@ type BaseViewKeeper struct {
 func NewBaseViewKeeper(cdc codec.BinaryCodec, storeService store.KVStoreService, ak types.AccountKeeper, logger log.Logger) BaseViewKeeper {
 	sb := collections.NewSchemaBuilder(storeService)
 	k := BaseViewKeeper{
-		cdc:           cdc,
-		storeService:  storeService,
-		ak:            ak,
-		logger:        logger,
-		Supply:        collections.NewMap(sb, types.SupplyKey, "supply", collections.StringKey, sdk.IntValue),
+		cdc:          cdc,
+		storeService: storeService,
+		ak:           ak,
+		logger:       logger,
+		Supply: collections.NewMap(sb, types.SupplyKey, "supply",
+			collections.StringKey.WithName("denom"),
+			sdk.IntValue),
 		DenomMetadata: collections.NewMap(sb, types.DenomMetadataPrefix, "denom_metadata", collections.StringKey, codec.CollValue[types.Metadata](cdc)),
 		SendEnabled:   collections.NewMap(sb, types.SendEnabledPrefix, "send_enabled", collections.StringKey, codec.BoolValue), // NOTE: we use a bool value which uses protobuf to retain state backwards compat
-		Balances:      collections.NewIndexedMap(sb, types.BalancesPrefix, "balances", collections.PairKeyCodec(sdk.AccAddressKey, collections.StringKey), types.BalanceValueCodec, newBalancesIndexes(sb)),
-		Params:        collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
+		Balances: collections.NewIndexedMap(sb, types.BalancesPrefix, "balances",
+			collections.PairKeyCodec(sdk.AccAddressKey, collections.StringKey).WithName("address", "denom"),
+			types.BalanceValueCodec,
+			newBalancesIndexes(sb)),
+		Params: collections.NewItem(sb, types.ParamsKey, "params", codec.CollValue[types.Params](cdc)),
 	}
 
 	schema, err := sb.Build()
