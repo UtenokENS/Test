@@ -1,6 +1,6 @@
 module cosmossdk.io/simapp
 
-go 1.21
+go 1.21.0
 
 require (
 	cosmossdk.io/api v0.7.1
@@ -39,6 +39,7 @@ require (
 	cloud.google.com/go/iam v1.1.1 // indirect
 	cloud.google.com/go/storage v1.31.0 // indirect
 	cosmossdk.io/errors v1.0.0 // indirect
+	cosmossdk.io/x/params v0.0.0-00010101000000-000000000000
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4 // indirect
 	github.com/99designs/keyring v1.2.1 // indirect
@@ -178,7 +179,7 @@ require (
 	google.golang.org/api v0.134.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230913181813-007df8e322eb // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20230803162519-f966b187b2e5 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20230913181813-007df8e322eb // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230920204549-e6e6cdab5c13 // indirect
 	google.golang.org/grpc v1.58.2 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -209,6 +210,7 @@ replace (
 
 // Below are the long-lived replace of the SimApp
 replace (
+	cosmossdk.io/x/params => ../x/params
 	// use cosmos fork of keyring
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.2.0
 	// Simapp always use the latest version of the cosmos-sdk

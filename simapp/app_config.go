@@ -36,7 +36,8 @@ import (
 	_ "cosmossdk.io/x/feegrant/module" // import for side-effects
 	"cosmossdk.io/x/nft"
 	_ "cosmossdk.io/x/nft/module" // import for side-effects
-	_ "cosmossdk.io/x/upgrade"    // import for side-effects
+	_ "cosmossdk.io/x/params"     // import for side-effects
+	_ "cosmossdk.io/x/upgrade" // import for side-effects
 	upgradetypes "cosmossdk.io/x/upgrade/types"
 
 	"github.com/cosmos/cosmos-sdk/runtime"
