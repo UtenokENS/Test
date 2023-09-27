@@ -104,6 +104,12 @@ err := autoCliOpts.EnhanceRootCommand(rootCmd)
 ...
 ```
 
+### Signing
+
+`autocli` supports signing transactions with the keyring.
+The [`cosmos.msg.v1.signer` protobuf annotation](https://github.com/cosmos/cosmos-sdk/blob/9dd34510e27376005e7e7ff3628eab9dbc8ad6dc/docs/build/building-modules/05-protobuf-annotations.md#L9) defines the signer field of the message.
+This field is automatically filled when using the `--from` flag or defining the signer as a positional argument.
+
 ## Module Wiring & Customization
 
 The `AutoCLIOptions()` method on your module allows to specify custom commands, sub-commands or flags for each service, as it was a `cobra.Command` instance, within the `RpcCommandOptions` struct. Defining such options will customize the behavior of the `autocli` command generation, which by default generates a command for each method in your gRPC service.

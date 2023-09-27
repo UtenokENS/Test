@@ -7,8 +7,8 @@ import (
 	autocliv1 "cosmossdk.io/api/cosmos/autocli/v1"
 	"github.com/cockroachdb/errors"
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/spf13/cobra"
-	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
@@ -97,24 +97,7 @@ func (b *Builder) AddMsgServiceCommands(cmd *cobra.Command, cmdDescriptor *autoc
 
 // BuildMsgMethodCommand returns a command that outputs the JSON representation of the message.
 func (b *Builder) BuildMsgMethodCommand(descriptor protoreflect.MethodDescriptor, options *autocliv1.RpcCommandOptions) (*cobra.Command, error) {
-	jsonMarshalOptions := protojson.MarshalOptions{
-		Indent:          "  ",
-		UseProtoNames:   true,
-		UseEnumNumbers:  false,
-		EmitUnpopulated: true,
-		Resolver:        b.TypeResolver,
-	}
-
 	cmd, err := b.buildMethodCommandCommon(descriptor, options, func(cmd *cobra.Command, input protoreflect.Message) error {
-		if noIdent, _ := cmd.Flags().GetBool(flagNoIndent); noIdent {
-			jsonMarshalOptions.Indent = ""
-		}
-
-		bz, err := jsonMarshalOptions.Marshal(input.Interface())
-		if err != nil {
-			return err
-		}
-
 		clientCtx, err := client.ReadPersistentCommandFlags(*b.ClientCtx, cmd.Flags())
 		if err != nil {
 			return err
@@ -130,13 +113,11 @@ func (b *Builder) BuildMsgMethodCommand(descriptor protoreflect.MethodDescriptor
 			return err
 		}
 
-		return b.outOrStdoutFormat(cmd, bz)
+		return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), input)
 	})
 
 	if b.AddTxConnFlags != nil {
 		b.AddTxConnFlags(cmd)
-
-		cmd.Flags().BoolP(flagNoIndent, "", false, "Do not indent JSON output")
 	}
 
 	return cmd, err
