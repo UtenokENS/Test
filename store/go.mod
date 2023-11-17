@@ -25,7 +25,7 @@ require (
 	gotest.tools/v3 v3.5.1
 )
 
-require github.com/hashicorp/go-metrics v0.5.1
+require github.com/hashicorp/go-metrics v0.5.2
 
 require (
 	github.com/DataDog/zstd v1.5.5 // indirect
